@@ -7,13 +7,15 @@
 #include <atomic>
 #include "database.hpp"
 #include "camera_recorder.hpp"
+#include "storage_manager.hpp"
 #include "config.hpp"
 #include "logger.hpp"
 
 class CameraManager {
 public:
-    CameraManager(const Config& cfg, std::shared_ptr<Database> db) 
-        : config(cfg), database(db) {}
+    CameraManager(const Config& cfg, std::shared_ptr<Database> db, 
+                  std::shared_ptr<StorageManager> storage) 
+        : config(cfg), database(db), storageManager(storage) {}
     
     ~CameraManager() {
         stopAll();
@@ -41,7 +43,10 @@ public:
                 camIdStr,  // Pass string ID for MediaMTX
                 cam.name, 
                 cam.rtspUrl,
-                config.getRecordingPath()
+                config.getRecordingPath(),
+                storageManager,  // Pass storage manager
+                config.getMaxRetries(),
+                config.getRetryDelaySeconds()
             );
             recorders.push_back(recorder);
         }
@@ -77,13 +82,21 @@ public:
     void logStatus() {
         Logger::info("=== Recorder Status ===");
         for (const auto& recorder : recorders) {
-            Logger::info(recorder->getName() + ": " + recorder->getStatus());
+            std::string status = recorder->getName() + ": " + recorder->getStatus();
+            if (recorder->hasFailed()) {
+                Logger::error(status + " - MANUAL INTERVENTION REQUIRED");
+            } else if (recorder->getConsecutiveFailures() > 0) {
+                Logger::warn(status);
+            } else {
+                Logger::info(status);
+            }
         }
     }
 
 private:
     const Config& config;
     std::shared_ptr<Database> database;
+    std::shared_ptr<StorageManager> storageManager;
     std::vector<Camera> cameras;
     std::vector<std::shared_ptr<CameraRecorder>> recorders;
 };

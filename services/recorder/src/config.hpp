@@ -22,6 +22,15 @@ public:
         lowQuality = getEnv("QSV_LOW_QUALITY", "720p");
         highQuality = getEnv("QSV_HIGH_QUALITY", "1440p");
         
+        // Storage management
+        retentionDays = std::stoi(getEnv("RETENTION_DAYS", "2"));  // Default 2 days, max 30
+        minFreeSpaceGB = std::stoi(getEnv("MIN_FREE_SPACE_GB", "10"));  // Minimum 10GB free
+        cleanupIntervalHours = std::stoi(getEnv("CLEANUP_INTERVAL_HOURS", "1"));  // Run cleanup every hour
+        
+        // Recording settings
+        maxRetries = std::stoi(getEnv("MAX_RETRIES", "10"));  // Max reconnect attempts
+        retryDelaySeconds = std::stoi(getEnv("RETRY_DELAY_SECONDS", "5"));  // Delay between retries
+        
         return !dbPassword.empty();
     }
     
@@ -45,6 +54,15 @@ public:
     std::string getQsvDevice() const { return qsvDevice; }
     std::string getLowQuality() const { return lowQuality; }
     std::string getHighQuality() const { return highQuality; }
+    
+    // Storage management getters
+    int getRetentionDays() const { return retentionDays; }
+    uint64_t getMinFreeSpaceGB() const { return minFreeSpaceGB; }
+    int getCleanupIntervalHours() const { return cleanupIntervalHours; }
+    
+    // Recording settings getters
+    int getMaxRetries() const { return maxRetries; }
+    int getRetryDelaySeconds() const { return retryDelaySeconds; }
 
 private:
     std::string dbHost, dbName, dbUser, dbPassword;
@@ -52,6 +70,15 @@ private:
     std::string redisHost;
     int redisPort;
     std::string recordingPath, qsvDevice, lowQuality, highQuality;
+    
+    // Storage management
+    int retentionDays;
+    uint64_t minFreeSpaceGB;
+    int cleanupIntervalHours;
+    
+    // Recording settings
+    int maxRetries;
+    int retryDelaySeconds;
     
     std::string getEnv(const char* name, const std::string& defaultValue) {
         const char* value = std::getenv(name);
