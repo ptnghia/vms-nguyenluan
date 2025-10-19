@@ -7,6 +7,8 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cameras_1 = __importDefault(require("./routes/cameras"));
+const auth_1 = __importDefault(require("./routes/auth"));
+const streams_1 = __importDefault(require("./routes/streams"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
@@ -38,20 +40,29 @@ app.get('/', (req, res) => {
     });
 });
 // API routes
+app.use('/api/auth', auth_1.default);
 app.use('/api/cameras', cameras_1.default);
+app.use('/api/streams', streams_1.default);
 app.get('/api', (req, res) => {
     res.json({
         message: 'VMS API v1.0.0',
         endpoints: [
+            'POST /api/auth/register - Register user',
+            'POST /api/auth/login - Login',
+            'POST /api/auth/refresh - Refresh token',
+            'GET /api/auth/me - Get profile',
+            'POST /api/auth/change-password - Change password',
+            'POST /api/auth/logout - Logout',
             'GET /api/cameras - List all cameras',
             'POST /api/cameras - Create camera',
             'GET /api/cameras/:id - Get camera',
             'PUT /api/cameras/:id - Update camera',
             'DELETE /api/cameras/:id - Delete camera',
-            '/api/recordings',
-            '/api/streams',
-            '/api/events',
-            '/api/users'
+            'GET /api/streams - List active streams',
+            'GET /api/streams/camera/:id - Get camera stream URLs',
+            'GET /api/streams/status/:id - Get stream status',
+            'GET /api/streams/health - MediaMTX health',
+            '/api/recordings'
         ]
     });
 });

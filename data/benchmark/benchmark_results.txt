@@ -1,0 +1,57 @@
+Starting benchmark tests...
+
+========================================
+Testing: p1: Fastest (lowest quality)
+========================================
+ERROR: Failed to create output file for p1
+
+========================================
+Testing: p2: Faster
+========================================
+ERROR: Failed to create output file for p2
+
+========================================
+Testing: p3: Fast
+========================================
+ERROR: Failed to create output file for p3
+
+========================================
+Testing: p4: Medium (balanced)
+========================================
+ERROR: Failed to create output file for p4
+
+========================================
+Testing: p5: Slow
+========================================
+ERROR: Failed to create output file for p5
+
+========================================
+Testing: p6: Slower
+========================================
+ERROR: Failed to create output file for p6
+
+========================================
+Testing: p7: Slowest (highest quality)
+========================================
+ERROR: Failed to create output file for p7
+
+========================================
+Benchmark Complete!
+========================================
+
+Results saved to:
+  Text: /home/camera/app/vms/data/benchmark/benchmark_results.txt
+  CSV:  /home/camera/app/vms/data/benchmark/benchmark_results.csv
+  Video files: /home/camera/app/vms/data/benchmark/*.mp4
+
+========================================
+SUMMARY COMPARISON
+========================================
+Preset  Avg Bitrate (kbps)  Max Bitrate (kbps)  File Size (MB)  Encode FPS  Quality (VMAF)  CPU %  GPU %
+p1      ERROR               ERROR               ERROR           ERROR       ERROR           ERROR  ERROR
+p2      ERROR               ERROR               ERROR           ERROR       ERROR           ERROR  ERROR
+p3      ERROR               ERROR               ERROR           ERROR       ERROR           ERROR  ERROR
+p4      ERROR               ERROR               ERROR           ERROR       ERROR           ERROR  ERROR
+p5      ERROR               ERROR               ERROR           ERROR       ERROR           ERROR  ERROR
+p6      ERROR               ERROR               ERROR           ERROR       ERROR           ERROR  ERROR
+p7      ERROR               ERROR               ERROR           ERROR       ERROR           ERROR  ERROR

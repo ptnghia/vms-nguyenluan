@@ -2,6 +2,8 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cameraRoutes from './routes/cameras';
+import authRoutes from './routes/auth';
+import streamRoutes from './routes/streams';
 
 dotenv.config();
 
@@ -39,21 +41,30 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // API routes
+app.use('/api/auth', authRoutes);
 app.use('/api/cameras', cameraRoutes);
+app.use('/api/streams', streamRoutes);
 
 app.get('/api', (req: Request, res: Response) => {
   res.json({
     message: 'VMS API v1.0.0',
     endpoints: [
+      'POST /api/auth/register - Register user',
+      'POST /api/auth/login - Login',
+      'POST /api/auth/refresh - Refresh token',
+      'GET /api/auth/me - Get profile',
+      'POST /api/auth/change-password - Change password',
+      'POST /api/auth/logout - Logout',
       'GET /api/cameras - List all cameras',
       'POST /api/cameras - Create camera',
       'GET /api/cameras/:id - Get camera',
       'PUT /api/cameras/:id - Update camera',
       'DELETE /api/cameras/:id - Delete camera',
-      '/api/recordings',
-      '/api/streams',
-      '/api/events',
-      '/api/users'
+      'GET /api/streams - List active streams',
+      'GET /api/streams/camera/:id - Get camera stream URLs',
+      'GET /api/streams/status/:id - Get stream status',
+      'GET /api/streams/health - MediaMTX health',
+      '/api/recordings'
     ]
   });
 });
