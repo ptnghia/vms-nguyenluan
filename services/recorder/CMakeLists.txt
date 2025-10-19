@@ -23,6 +23,9 @@ if(NOT HIREDIS_LIB)
     message(FATAL_ERROR "hiredis library not found")
 endif()
 
+# Find CURL for MediaMTX health checks
+find_package(CURL REQUIRED)
+
 # Include directories
 include_directories(
     ${LIBAV_INCLUDE_DIRS}
@@ -50,6 +53,7 @@ target_link_libraries(vms-recorder
     ${LIBAV_LIBRARIES}
     ${LIBPQ_LIBRARIES}
     ${HIREDIS_LIB}
+    CURL::libcurl
     pthread
 )
 

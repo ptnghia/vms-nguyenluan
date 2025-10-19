@@ -8,9 +8,16 @@
 #include "database.hpp"
 #include "logger.hpp"
 #include "storage_manager.hpp"
+#include "mediamtx_health.hpp"
 
 // Global flag for graceful shutdown
 volatile sig_atomic_t g_shutdown = 0;
+
+// Helper function to get environment variable
+static std::string getEnvVar(const char* name, const std::string& defaultValue) {
+    const char* value = std::getenv(name);
+    return value ? std::string(value) : defaultValue;
+}
 
 void signal_handler(int signum) {
     Logger::info("Received signal " + std::to_string(signum) + ", shutting down...");
@@ -34,9 +41,9 @@ int main(int argc, char* argv[]) {
         }
         
         // Initialize database connection
-        auto db = std::make_shared<Database>(config);
-        if (!db->connect()) {
-            Logger::error("Failed to connect to database");
+        auto db = std::make_shared<Database>(config, 3, 5);  // 3 retries, 5s delay
+        if (!db->connectWithRetry()) {
+            Logger::error("Failed to connect to database after retries");
             return 1;
         }
         
@@ -71,6 +78,18 @@ int main(int argc, char* argv[]) {
         }
         
         Logger::info("Disk space check passed - sufficient space available");
+        
+        // Initialize MediaMTX Health Monitor
+        std::string mediamtxUrl = getEnvVar("MEDIAMTX_API_URL", "http://localhost:9997");
+        int healthCheckInterval = std::stoi(getEnvVar("MEDIAMTX_HEALTH_CHECK_INTERVAL", "30"));
+        auto mediamtxHealth = std::make_shared<MediaMTXHealth>(mediamtxUrl, healthCheckInterval);
+        
+        // Initial MediaMTX health check
+        if (mediamtxHealth->checkNow()) {
+            Logger::info("MediaMTX server is healthy - live streaming available");
+        } else {
+            Logger::warn("MediaMTX server is not responding - live streaming will be disabled until it comes online");
+        }
         
         // Initialize Camera Manager
         auto cameraManager = std::make_shared<CameraManager>(config, db, storageManager);
@@ -107,6 +126,20 @@ int main(int argc, char* argv[]) {
             static int counter = 0;
             if (++counter % 60 == 0) {
                 cameraManager->logStatus();
+                
+                // Check MediaMTX health
+                std::string mediamtxStatus = mediamtxHealth->getStatus();
+                Logger::info("MediaMTX Status: " + mediamtxStatus);
+                
+                // Check database connection
+                if (!db->isConnected()) {
+                    Logger::warn("Database connection check failed - will auto-reconnect on next query");
+                }
+            }
+            
+            // Check MediaMTX health every 30 seconds (configurable)
+            if (counter % 30 == 0) {
+                mediamtxHealth->isServerHealthy();
             }
             
             // Check if it's time for cleanup
