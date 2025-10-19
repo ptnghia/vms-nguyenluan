@@ -67,6 +67,7 @@ module.exports = {
         DATABASE_NAME: 'vms',
         DATABASE_USER: 'vms_user',
         POSTGRES_PASSWORD: 'l3Gd63G2iBlqtiWI',
+        DATABASE_URL: 'postgresql://vms_user:l3Gd63G2iBlqtiWI@localhost:5432/vms',
         REDIS_HOST: 'localhost',
         REDIS_PORT: '6379',
         JWT_SECRET: 'change_this_to_random_64_char_string_in_production',
