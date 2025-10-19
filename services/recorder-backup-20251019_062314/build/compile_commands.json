@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/camera/app/vms/services/recorder/build",
+  "command": "/usr/bin/c++  -I/usr/include/postgresql -I/home/camera/app/vms/services/recorder/src -I/usr/include/mfx -std=gnu++17 -Wall -Wextra -O2 -o CMakeFiles/vms-recorder.dir/src/main.cpp.o -c /home/camera/app/vms/services/recorder/src/main.cpp",
+  "file": "/home/camera/app/vms/services/recorder/src/main.cpp",
+  "output": "CMakeFiles/vms-recorder.dir/src/main.cpp.o"
+}
+]

@@ -1,0 +1,50 @@
+# VMS Development Environment
+.env
+.env.local
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build artifacts
+services/recorder/build/
+services/recorder/cmake-build-*/
+*.o
+*.so
+*.a
+vms-recorder
+
+# MediaMTX streaming server
+services/streaming/mediamtx
+services/streaming/mediamtx.log
+mediamtx_*.tar.gz
+
+# Recordings & Logs
+data/recordings/*
+!data/recordings/.gitkeep
+logs/*.log
+*.log
+/tmp/*.log
+
+# Database
+*.db
+*.sqlite
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Docker
+docker-compose.override.yml
+
+# Temporary
+tmp/
+temp/
+*.tmp

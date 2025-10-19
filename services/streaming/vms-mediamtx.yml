@@ -1,0 +1,116 @@
+###############################################
+# VMS MediaMTX Configuration
+# Live Streaming Server for 200 cameras
+###############################################
+
+# Logging
+logLevel: info
+logDestinations: [stdout, file]
+logFile: /home/camera/app/vms/services/streaming/mediamtx.log
+
+# Performance tuning
+readTimeout: 10s
+writeTimeout: 10s
+writeQueueSize: 1024  # Higher for many concurrent streams
+udpMaxPayloadSize: 1472
+
+# Authentication - Internal for now
+authMethod: internal
+authInternalUsers:
+  - user: vms_recorder
+    pass: vms_recorder_secret_2025
+    ips: [127.0.0.1]  # Only localhost can publish
+    permissions:
+      - action: publish
+      - action: read
+  
+  - user: vms_web
+    pass: vms_web_secret_2025
+    permissions:
+      - action: read  # Web clients can only read
+
+###############################################
+# RTSP Server
+###############################################
+rtsp: yes
+rtspDisable: no
+protocols: [tcp]  # Only TCP for reliability
+encryption: "no"  # No encryption for internal network
+rtspAddress: :8554
+rtspAuthMethods: [basic]
+
+###############################################
+# RTMP Server (optional, for future)
+###############################################
+rtmp: no
+rtmpDisable: yes
+
+###############################################
+# HLS Server (for web browser playback)
+###############################################
+hls: yes
+hlsDisable: no
+hlsAddress: :8888
+hlsEncryption: no
+hlsServerKey: server.key
+hlsServerCert: server.crt
+hlsAlwaysRemux: no
+hlsVariant: lowLatency  # Low latency for live streaming
+hlsSegmentCount: 7
+hlsSegmentDuration: 1s
+hlsPartDuration: 200ms
+hlsSegmentMaxSize: 50M
+hlsAllowOrigin: '*'  # CORS for web
+
+###############################################
+# WebRTC Server (for ultra-low latency)
+###############################################
+webrtc: yes
+webrtcDisable: no
+webrtcAddress: :8889
+webrtcEncryption: no
+webrtcServerKey: server.key
+webrtcServerCert: server.crt
+webrtcAllowOrigin: '*'
+webrtcTrustedProxies: []
+webrtcICEServers2: []
+
+###############################################
+# Metrics & Monitoring
+###############################################
+metrics: yes
+metricsAddress: :9998
+
+# API for management
+api: yes
+apiAddress: :9997
+
+###############################################
+# Path defaults for camera streams
+###############################################
+pathDefaults:
+  # Source settings
+  source: publisher
+  sourceProtocol: automatic
+  sourceOnDemand: no  # Always ready for streams
+  
+  # Recording (disabled - we handle recording separately)
+  record: no
+
+###############################################
+# Individual camera paths
+###############################################
+# Paths will be: /live/{camera_id}/{quality}
+# Example: rtsp://localhost:8554/live/cam001/low
+#          rtsp://localhost:8554/live/cam001/high
+
+paths:
+  # Pattern matching for all camera streams
+  ~^live/.+$:
+    source: publisher
+    
+  # Health check path
+  health:
+    source: publisher
+    runOnReady: echo "MediaMTX is ready"
+    runOnNotReady: echo "MediaMTX stopped"
