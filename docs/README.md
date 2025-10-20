@@ -1,6 +1,8 @@
 # 📚 VMS Project Documentation
 
-**Last Updated**: October 19, 2025
+**Last Updated**: October 20, 2025  
+**Environment**: Test/Development  
+**Status**: Phase 1 MVP - 98% Complete
 
 ---
 
@@ -8,52 +10,64 @@
 
 ```
 docs/
-├── README.md                    # Bạn đang đọc file này
-├── FINAL_SOLUTION.md           # ⭐ Phương án cuối cùng đã chốt
-├── reports/                     # Báo cáo đánh giá & trạng thái
-│   ├── SERVER_ASSESSMENT.md    # Đánh giá phần cứng
-│   ├── PROJECT_SUMMARY.md      # Tổng kết dự án
-│   └── SETUP_COMPLETE.md       # Trạng thái infrastructure
-├── plan/                        # Kế hoạch triển khai chi tiết
-│   ├── Phase1_MVP.md           # Weeks 1-4: MVP với 5 cameras
-│   ├── Phase2_Production.md    # Weeks 5-10: Scale to 50 cameras
-│   ├── Phase3_AI_Integration.md # Weeks 11-18: AI & LPR
-│   ├── Phase4_Enterprise_Scale.md # Weeks 19-28: 200 cameras + HA
-│   └── Phase5_Adaptive_MultiQuality.md # Weeks 29-35: Multi-quality
-└── analysis/                    # Phân tích kỹ thuật chi tiết
-    ├── 00_QUICK_REFERENCE.md   # Quick reference
-    ├── 01-10_*.md              # Phân tích ban đầu
-    ├── 11_Infrastructure_Scaling.md
-    ├── 13_Implementation_Summary.md
-    ├── 15_Single_Stream_Architecture.md # ⭐⭐ Chi tiết kiến trúc
-    └── archive/                 # Documents cũ
+├── README.md                           # Bạn đang đọc file này
+├── PM2_OPERATIONS.md                   # Hướng dẫn vận hành PM2
+├── QUALITY_OPTIMIZATION.md             # Tối ưu chất lượng video
+├── DOCUMENTATION_CLEANUP_PROPOSAL.md   # Đề xuất cleanup (reference)
+├── reports/                            # Báo cáo tiến độ & phân tích
+│   ├── README.md
+│   ├── PROGRESS_ANALYSIS.md           # ⭐ Phân tích tiến độ chi tiết
+│   └── STORAGE_OPTIMIZATION_ANALYSIS.md # Phân tích tối ưu storage
+├── plan/                               # Kế hoạch Phase 1 MVP
+│   ├── README.md
+│   ├── Phase1_MVP.md                  # Kế hoạch MVP ban đầu
+│   ├── Phase1_Progress.md             # Tiến độ chi tiết
+│   ├── Phase1_Summary.md              # Tóm tắt nhanh
+│   └── OPTIMIZATION_IMPLEMENTATION_PLAN.md # ⭐ Kế hoạch tối ưu
+├── analysis/                           # Phân tích kỹ thuật
+│   ├── README.md
+│   ├── 00_QUICK_REFERENCE.md          # Quick reference
+│   ├── 01-09_*.md                     # Phân tích ban đầu
+│   ├── 13_Implementation_Summary.md
+│   ├── 15_Single_Stream_Architecture.md # Kiến trúc single-stream
+│   ├── 16_Optimized_Architecture_v2.md  # ⭐⭐ Kiến trúc tối ưu v2
+│   └── archive/                        # Documents cũ
+└── archive/                            # Production planning (tham khảo)
+    ├── production_planning/            # 200 cameras, enterprise
+    ├── old_reports/                    # Báo cáo cũ
+    └── old_analysis/                   # Phân tích cũ
 ```
 
 ---
 
 ## 🎯 **Bắt đầu từ đây**
 
-### **1. Đọc phương án cuối cùng:**
-📄 **`FINAL_SOLUTION.md`** - Document quan trọng nhất!
+### **1. Hiểu trạng thái hiện tại:**
+📄 **`reports/PROGRESS_ANALYSIS.md`** - Tiến độ 98% Phase 1 MVP
 
 Chứa:
-- Tóm tắt giải pháp
-- Kiến trúc hệ thống
-- Yêu cầu & mục tiêu
-- Chi phí tổng quan
-- Lợi ích & ROI
-- Rủi ro & giảm thiểu
+- Tổng quan tiến độ (98% complete)
+- So sánh kế hoạch vs thực tế
+- Performance metrics
+- Next steps
 
-### **2. Xem kế hoạch triển khai:**
-📂 **`plan/`** - 5 phases chi tiết
+### **2. Xem kế hoạch tối ưu:**
+📄 **`plan/OPTIMIZATION_IMPLEMENTATION_PLAN.md`** - Kế hoạch tối ưu CPU + Storage
 
-Mỗi phase bao gồm:
-- Mục tiêu & success criteria
-- Scope & deliverables
-- Timeline & milestones
-- Budget breakdown
-- Technical specs
-- Testing & validation
+Chứa:
+- Phase 1: Single-process + QSV (6 hours)
+- CPU: 126% → 15% per camera (88% reduction)
+- Storage: 48.48 GB → 21.6 GB per day (55% reduction)
+- Implementation steps chi tiết
+
+### **3. Hiểu kiến trúc tối ưu:**
+📄 **`analysis/16_Optimized_Architecture_v2.md`** - Kiến trúc mới
+
+Chứa:
+- Single-process multi-output
+- Intel QSV hardware acceleration
+- H.264 CRF 23 encoding
+- Performance metrics
 
 ---
 
@@ -62,174 +76,197 @@ Mỗi phase bao gồm:
 ### **Tổng quan dự án:**
 ```yaml
 System: Video Management System (VMS)
-Cameras: 200 (scale to 500+)
+Environment: Test/Development
+Cameras: 2 online (target: 5 cameras)
 Recording: 24/7 @ 1080p
-Live Viewing: Adaptive (720p/1440p)
-AI: LPR, motion detection, analytics
-Timeline: 35 weeks (~8 months)
-CAPEX: $87,000
-OPEX: $149,000/year
+Retention: 2 ngày (test environment)
+Storage: 476.9GB SSD local
+Budget: $0 (sử dụng hardware hiện có)
+```
+
+### **Hardware hiện tại:**
+```yaml
+CPU: Intel i5-14500 (14 cores, 20 threads)
+  - Intel QuickSync Gen 12.5 ✅
+RAM: 16GB DDR4
+GPU: NVIDIA RTX 3050 6GB
+Storage: 367GB available (210GB free)
+Network: 1Gbps
 ```
 
 ### **Kiến trúc:**
 ```yaml
-Architecture: Single-stream với adaptive multi-quality transcode
+Architecture: Single-stream với single-quality recording
 Recording Engine: C++ with FFmpeg & Intel QuickSync
-API: Node.js (NestJS/Express)
-AI Workers: Python (Celery)
+API: Node.js (Express)
 Frontend: React + TypeScript
-Storage: NVMe hot / HDD warm / S3 cold
-Monitoring: Prometheus + Grafana + ELK
+Storage: Local SSD (2 ngày retention)
+Monitoring: PM2 + logs
 ```
 
 ### **Milestones:**
 ```yaml
-Week 4:   MVP (5 cameras)
-Week 10:  Production (50 cameras)
-Week 18:  AI Integration (LPR)
-Week 28:  Enterprise (200 cameras + HA)
-Week 35:  Adaptive Multi-Quality ⭐
+Week 1-3: Infrastructure + Recording + API [████████████] 100% ✅
+Week 4:   Frontend + Integration          [███████████░]  95% 🔄
+Next:     CPU + Storage Optimization       [░░░░░░░░░░░░]   0% ��
 ```
 
 ---
 
-## 🚀 **Implementation Phases**
+## 🚀 **Current Status & Next Steps**
 
-### **Phase 1: MVP (4 weeks)**
-**Budget**: $15k | **Cameras**: 5
-- Basic recording & playback
-- Single quality live view (720p)
-- Simple authentication
-- Proof of concept
+### **Phase 1 MVP: 98% Complete** ✅
 
-### **Phase 2: Production (6 weeks)**
-**Budget**: $25k | **Cameras**: 50
-- Multi-camera support
-- Grid layouts
-- RBAC & zones
-- Export function
-- Mobile PWA
+```yaml
+Completed:
+  ✅ Infrastructure (100%)
+  ✅ Recording Engine C++ (100%)
+  ✅ API Backend Node.js (100%)
+  ✅ Frontend React (95%)
 
-### **Phase 3: AI Integration (8 weeks)**
-**Budget**: $20k | **Cameras**: 50
-- License Plate Recognition
-- Motion detection
-- Vehicle analytics
-- Real-time alerts
-- Analytics dashboard
+Current Issues:
+  ⚠️ CPU: 126% per camera (không bền vững)
+  ⚠️ Storage: 48.48 GB/day per camera (quá cao)
 
-### **Phase 4: Enterprise Scale (10 weeks)**
-**Budget**: $27k | **Cameras**: 200
-- Full scale deployment
-- High Availability
-- Advanced security (MFA)
-- Complete monitoring
-- 99.9% SLA
+Next: Optimization (Phase 1 final)
+  📋 Single-process architecture
+  📋 Intel QSV hardware acceleration
+  📋 H.264 CRF 23 encoding
+  📋 Timeline: 6 hours implementation
+```
 
-### **Phase 5: Adaptive Multi-Quality (7 weeks)** ⭐
-**Budget**: $2k | **Cameras**: 200
-- Dual transcode (720p + 1440p)
-- Automatic quality selection
-- 10Gbps network
-- Future-proof for 500+ cameras
+### **Optimization Goals:**
+
+```yaml
+CPU Reduction:
+  Before: 126% per camera (3 FFmpeg processes)
+  After: 15% per camera (1 FFmpeg process + QSV)
+  Improvement: 88% reduction ✅
+
+Storage Reduction:
+  Before: 48.48 GB/day per camera (copy mode)
+  After: 21.6 GB/day per camera (H.264 CRF 23)
+  Improvement: 55% reduction ✅
+
+Retention Policy:
+  Duration: 2 ngày (test environment)
+  2 cameras: 86.4 GB (after optimization) ✅
+  5 cameras: 216 GB (need cleanup or compression)
+```
 
 ---
 
 ## 💡 **Key Decisions**
 
 ### **Giải pháp đã chốt:**
-✅ **Single-stream architecture** (not dual-stream)
-- Lý do: Bandwidth overflow (1.2Gbps > 1Gbps camera network)
-- Giải quyết: VMS transcode từ single main stream
 
-✅ **Adaptive multi-quality** (720p + 1440p)
-- Lý do: User experience tốt hơn cho các viewing modes
-- Grid ≥18: 720p (economical)
-- Grid <18 + Fullscreen: 1440p (excellent)
+✅ **Single-stream architecture**
+- Lý do: Đơn giản, hiệu quả cho test environment
+- 1 RTSP connection per camera
+- VMS transcode nếu cần
 
-✅ **Intel QuickSync** (not discrete GPU)
-- Lý do: Integrated, cost-effective, sufficient capacity
-- Cost saved: $10k (vs NVIDIA T4 cards)
-- Capacity: 30-40 transcodes per CPU
+✅ **Single-quality recording** (1080p)
+- Lý do: Đơn giản hóa cho test/dev
+- Không cần dual-quality (720p + 1440p)
+- Focus vào stability và performance
 
-✅ **10Gbps monitoring center network**
-- Lý do: Future-proof, eliminates bandwidth concerns
-- Cost: $2k (only 2.4% of total)
-- Benefit: Ready for 4K and 500+ cameras
+✅ **Intel QuickSync (QSV)**
+- Lý do: Hardware acceleration, CPU efficiency
+- i5-14500 có QSV Gen 12.5 tích hợp
+- 30-40 concurrent encodes capacity
 
-### **Phương án bị loại:**
-❌ **Direct RTSP từ cameras**
-- Lý do: Dual connection gấp đôi bandwidth (1.2Gbps)
-- Vượt quá 1Gbps camera network capacity
+✅ **2-day retention**
+- Lý do: Test environment, không cần lưu lâu
+- 210GB available đủ cho 2-5 cameras
+- Không cần external storage
 
-❌ **Discrete GPU cho transcoding**
-- Lý do: Intel QSV đủ tốt và rẻ hơn
-- Cost difference: $10k
+✅ **H.264 CRF 23 encoding**
+- Lý do: Balance giữa quality và file size
+- 55% storage reduction vs copy mode
+- Visually lossless quality
 
-❌ **On-demand streaming**
-- Lý do: Monitoring center xem 24/7, không phải on-demand
-- Assumption sai từ đầu
+### **Phương án bị loại (cho test/dev):**
+
+❌ **Dual-quality transcoding** (720p + 1440p)
+- Lý do: Phức tạp, không cần cho test
+- Tăng CPU usage không cần thiết
+
+❌ **H.265/HEVC encoding**
+- Lý do: Browser compatibility issues
+- H.264 đủ tốt cho test environment
+
+❌ **Tiered storage** (NAS/S3)
+- Lý do: Overkill cho 2 ngày retention
+- Local SSD đủ dùng
+
+❌ **365-day retention**
+- Lý do: Không cần cho test/dev
+- Sẽ cần 88.5TB storage (không khả thi)
 
 ---
 
-## 📖 **Tài liệu tham khảo**
+## 📖 **Tài liệu quan trọng**
 
-### **Trong repo:**
-- `../plan/00_QUICK_REFERENCE.md` - Quick answers
-- `../plan/15_Single_Stream_Architecture.md` - Technical deep-dive
-- `../plan/11_Infrastructure_Scaling.md` - Infrastructure details
-- `../plan/01-10_*.md` - Original planning docs
+### **Đọc ngay:**
+1. 📄 `reports/PROGRESS_ANALYSIS.md` - Tiến độ 98%
+2. 📄 `plan/OPTIMIZATION_IMPLEMENTATION_PLAN.md` - Kế hoạch tối ưu
+3. 📄 `analysis/16_Optimized_Architecture_v2.md` - Kiến trúc mới
 
-### **Ngoài repo:**
+### **Tham khảo kỹ thuật:**
+- `analysis/15_Single_Stream_Architecture.md` - Single-stream design
+- `analysis/00_QUICK_REFERENCE.md` - Quick reference
+- `PM2_OPERATIONS.md` - PM2 operations guide
+
+### **Production planning (archived):**
+- `archive/production_planning/` - 200 cameras, enterprise scale
+- Tham khảo khi cần scale lên production
+
+### **External resources:**
 - FFmpeg Documentation: https://ffmpeg.org/documentation.html
-- Intel QuickSync: https://www.intel.com/content/www/us/en/architecture-and-technology/quick-sync-video/quick-sync-video-general.html
-- Milestone XProtect (reference): https://www.milestonesys.com/
-- Genetec Security Center (reference): https://www.genetec.com/
-
----
-
-## 🤝 **Team Contacts**
-
-```yaml
-Technical Lead: [TBD]
-Architecture: [TBD]
-Backend (C++): [TBD]
-Backend (Node.js): [TBD]
-Frontend: [TBD]
-AI/ML: [TBD]
-DevOps: [TBD]
-Project Manager: [TBD]
-```
+- Intel QuickSync: https://www.intel.com/content/www/us/en/architecture-and-technology/quick-sync-video/
 
 ---
 
 ## ❓ **FAQ**
 
-**Q: Tại sao không dùng dual-stream từ camera?**
-A: Camera network chỉ 1Gbps, dual-stream sẽ cần 1.2Gbps (overflow). Single-stream + VMS transcode giải quyết vấn đề này.
+**Q: Tại sao chỉ 2 ngày retention?**
+A: Test/dev environment không cần lưu lâu. 2 ngày đủ để test và debug. Production sẽ cần retention dài hơn.
 
-**Q: Tại sao cần adaptive multi-quality?**
-A: Grid lớn (64 cameras) không cần 1440p, tiết kiệm bandwidth. Fullscreen cần 1440p để rõ nét. Auto-switching tối ưu trải nghiệm.
+**Q: Tại sao không dùng H.265?**
+A: H.264 đủ tốt cho test, browser compatibility tốt hơn. H.265 có thể xem xét cho production.
 
 **Q: Intel QSV có đủ mạnh không?**
-A: Đủ! 30-40 transcodes per CPU. 6 nodes = 210 capacity > 200 cameras. CPU chỉ 39.6%.
+A: Đủ! i5-14500 có QSV Gen 12.5, support 30-40 concurrent encodes. Hiện tại chỉ cần 2-5 cameras.
 
-**Q: Chi phí $87k có hợp lý không?**
-A: Hợp lý cho 200 cameras enterprise VMS. Commercial VMS tốn $200/camera/year license = $40k/year. Solution này no license fee, full control.
+**Q: Tại sao CPU usage cao (126% per camera)?**
+A: Đang dùng 3 FFmpeg processes per camera. Optimization sẽ giảm xuống 15% (1 process + QSV).
 
-**Q: Timeline 35 weeks có khả thi không?**
-A: Khả thi với phased approach. MVP sau 4 tuần để validate. Có thể adjust timeline nếu cần.
+**Q: Khi nào scale lên production?**
+A: Sau khi hoàn thành optimization và test stability. Tham khảo `archive/production_planning/` cho kế hoạch scale.
 
 ---
 
 ## ✅ **Next Steps**
 
-1. **Review** `FINAL_SOLUTION.md` kỹ
-2. **Approve** Phase 1 budget ($15k)
-3. **Recruit** team (2-3 developers)
-4. **Procure** pilot hardware
-5. **Start** Phase 1 (Week 1)
+### **Immediate (Hôm nay):**
+1. ✅ **Review** optimization plan
+2. 📋 **Implement** Phase 1 optimization (6 hours)
+3. 📋 **Test** với 2 cameras
+4. 📋 **Monitor** CPU và storage
+
+### **This Week:**
+1. 📋 Complete frontend (playback page)
+2. 📋 24-hour stability test
+3. 📋 Performance benchmarking
+4. 📋 Documentation update
+
+### **Next Week:**
+1. 📋 Scale to 5 cameras
+2. 📋 Load testing
+3. 📋 Demo preparation
+4. 📋 Plan next phase
 
 ---
 
-**Ready to build! ��**
+**Status:** 🟢 **ON TRACK** - Ready for optimization!  
+**Last Updated:** October 20, 2025
