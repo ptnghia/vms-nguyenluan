@@ -28,6 +28,13 @@ authInternalUsers:
     pass: vms_web_secret_2025
     permissions:
       - action: read  # Web clients can only read
+  
+  - user: any  # Anonymous access for demo
+    pass:
+    ips: []
+    permissions:
+      - action: read
+      - action: playback
 
 ###############################################
 # RTSP Server
@@ -54,8 +61,8 @@ hlsAddress: :8888
 hlsEncryption: no
 hlsServerKey: server.key
 hlsServerCert: server.crt
-hlsAlwaysRemux: no
-hlsVariant: lowLatency  # Low latency for live streaming
+hlsAlwaysRemux: yes
+hlsVariant: fmp4  # fmp4 for better compatibility
 hlsSegmentCount: 7
 hlsSegmentDuration: 1s
 hlsPartDuration: 200ms

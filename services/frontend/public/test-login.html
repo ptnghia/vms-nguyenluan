@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VMS Login Test</title>
+</head>
+<body>
+    <h1>VMS Login Test</h1>
+    <button onclick="testLogin()">Test Login</button>
+    <pre id="result"></pre>
+
+    <script>
+        async function testLogin() {
+            const result = document.getElementById('result');
+            result.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch('http://192.168.1.232:3000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'vmsadmin',
+                        password: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                result.textContent = JSON.stringify(data, null, 2);
+                console.log('Login result:', data);
+            } catch (error) {
+                result.textContent = 'Error: ' + error.message;
+                console.error('Login error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

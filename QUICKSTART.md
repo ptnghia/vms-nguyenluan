@@ -7,113 +7,150 @@
 ## ⚡ Super Quick Start
 
 ```bash
-# 1. Setup environment
-make setup
+# 1. Check services
+pm2 list
 
-# 2. Start services
-make start
+# 2. View logs
+pm2 logs
 
-# 3. Access application
-# Frontend: http://localhost:8080
-# API: http://localhost:3000
+# 3. Monitor
+pm2 monit
+
+# 4. Check recordings
+ls -lh data/recordings/
 ```
 
 That's it! 🎉
 
 ---
 
-## 📋 What Just Happened?
+## 📋 What's Running?
 
 ```yaml
-Services Started:
-  ✓ PostgreSQL (database)
-  ✓ Redis (cache)
-  ✓ API Server (Node.js)
-  ✓ Recording Engine (C++)
-  ✓ Frontend (React)
+Services:
+  ✓ PostgreSQL 15 (database)
+  ✓ Redis 7 (cache)
+  ✓ API Server (Node.js on port 3000)
+  ✓ Recording Engine (C++ - 2 cameras)
+  ✓ MediaMTX (streaming server)
+  ✓ Frontend (React on port 5173)
+
+Current Status:
+  Cameras: 2 online
+  Recording: 24/7 @ 1080p
+  Retention: 2 ngày
+  Storage: 367GB available
 
 Default Login:
   Username: admin
   Password: admin123
 
 Endpoints:
-  Frontend: http://localhost:8080
+  Frontend: http://localhost:5173
   API: http://localhost:3000
-  Swagger: http://localhost:3000/api/docs
+  API Health: http://localhost:3000/api/health
 ```
 
 ---
 
-## 🎥 Adding Your First Camera
+## 🎥 Managing Cameras
 
-### **Option 1: Via Web UI**
-
-1. Open http://localhost:8080
-2. Login with `admin` / `admin123`
-3. Navigate to "Cameras" → "Add Camera"
-4. Enter camera details:
-   ```yaml
-   Name: Camera 01
-   RTSP URL: rtsp://username:password@192.168.1.100:554/stream
-   Location: Main Entrance
-   ```
-5. Click "Save" and "Start Recording"
-
-### **Option 2: Via API**
+### **View Camera Status:**
 
 ```bash
+# List all cameras
+curl http://localhost:3000/api/cameras | jq
+
+# Check specific camera
+pm2 logs "Duc Tai Dendo 1_main"
+```
+
+### **Add New Camera:**
+
+```bash
+# Via API
 curl -X POST http://localhost:3000/api/cameras \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
-    "name": "Camera 01",
-    "rtsp_url": "rtsp://admin:password@192.168.1.100:554/stream",
-    "location": "Main Entrance",
-    "resolution": "1080p",
-    "fps": 25,
-    "bitrate": 4000
+    "name": "Camera 03",
+    "rtsp_url": "rtsp://username:password@192.168.1.100:554/stream",
+    "location": "Main Entrance"
   }'
 ```
 
-### **Option 3: Test with Simulator**
+### **Start/Stop Recording:**
 
 ```bash
-# Start with test cameras
-make quick-test
+# Stop specific camera
+pm2 stop "Duc Tai Dendo 1_main"
+pm2 stop "Duc Tai Dendo 1_sub"
 
-# Simulator provides streams at:
-rtsp://localhost:8554/stream1
-rtsp://localhost:8554/stream2
-rtsp://localhost:8554/stream3
+# Start specific camera
+pm2 start "Duc Tai Dendo 1_main"
+pm2 start "Duc Tai Dendo 1_sub"
+
+# Restart all
+pm2 restart all
 ```
 
 ---
 
 ## 📚 Common Commands
 
+### **PM2 Operations:**
+
 ```bash
-# View all commands
-make help
+# View all processes
+pm2 list
 
-# Start services
-make start
+# View logs (all)
+pm2 logs
 
-# Stop services
-make stop
+# View logs (specific)
+pm2 logs "Duc Tai Dendo 1_main"
 
-# View logs
-make logs
+# Monitor resources
+pm2 monit
 
-# Check status
-make status
+# Restart all
+pm2 restart all
 
-# Restart everything
-make restart
+# Stop all
+pm2 stop all
 
-# Build from scratch
-make build
+# Delete all
+pm2 delete all
+```
 
-# Full cleanup and restart
-make full-restart
+### **Check System Health:**
+
+```bash
+# API health
+curl http://localhost:3000/api/health
+
+# Database
+psql -U camera_user -d vms_db -c "SELECT COUNT(*) FROM cameras;"
+
+# Redis
+redis-cli ping
+
+# Storage
+df -h data/recordings/
+du -sh data/recordings/*
+```
+
+### **View Recordings:**
+
+```bash
+# List recordings
+ls -lh data/recordings/
+
+# Count files
+find data/recordings/ -name "*.mp4" | wc -l
+
+# Check storage usage
+du -sh data/recordings/*
 ```
 
 ---
@@ -123,151 +160,138 @@ make full-restart
 ### **1. Check Services:**
 
 ```bash
-make status
+pm2 list
 
-# Expected output:
-# NAME             IMAGE              STATUS         PORTS
-# vms-postgres     postgres:15        Up (healthy)   5432
-# vms-redis        redis:7            Up (healthy)   6379
-# vms-api          vms-api            Up             3000
-# vms-recorder     vms-recorder       Up             
-# vms-frontend     vms-frontend       Up             8080
+# Expected: All processes "online"
 ```
 
 ### **2. Check API Health:**
 
 ```bash
-curl http://localhost:3000/health
+curl http://localhost:3000/api/health
 
-# Expected: {"status":"ok","database":"connected","redis":"connected"}
+# Expected: {"status":"ok"}
 ```
 
 ### **3. Check Frontend:**
 
-Open http://localhost:8080 in your browser
+Open http://localhost:5173 in your browser
 
-### **4. Check QuickSync:**
+### **4. Check Recordings:**
 
 ```bash
-make verify-qsv
+ls -lh data/recordings/
 
-# Should show Intel VA-API profiles (H.264, HEVC)
+# Should see camera folders with MP4 files
 ```
 
 ---
 
 ## 🐛 Troubleshooting
 
-### **Services won't start?**
+### **Services not running?**
 
 ```bash
-# Check Docker is running
-docker ps
+# Check PM2
+pm2 list
 
-# Check ports are available
-sudo lsof -i :3000
-sudo lsof -i :8080
+# Restart all
+pm2 restart all
 
 # Check logs
-make logs
-
-# Try full restart
-make full-restart
+pm2 logs --lines 50
 ```
 
 ### **Can't access frontend?**
 
 ```bash
-# Check if container is running
-docker compose ps frontend
+# Check if dev server is running
+cd services/frontend
+npm run dev
 
-# Check logs
-make logs-api
-
-# Verify port 8080 is accessible
-curl http://localhost:8080
+# Should start on http://localhost:5173
 ```
 
 ### **Database connection error?**
 
 ```bash
 # Check PostgreSQL
-docker compose ps postgres
+sudo systemctl status postgresql
 
-# Reset database
-make db-reset
-
-# Check logs
-make logs-db
+# Test connection
+psql -U camera_user -d vms_db -c "SELECT 1;"
 ```
 
-### **QuickSync not working?**
+### **Recording not working?**
 
 ```bash
-# Verify hardware support
-make verify-qsv
+# Check camera process
+pm2 logs "Duc Tai Dendo 1_main"
 
-# Check /dev/dri permissions
-ls -la /dev/dri/
+# Check RTSP connection
+ffprobe rtsp://YOUR_CAMERA_URL
 
-# Give permissions if needed
-sudo chmod -R 777 /dev/dri/
+# Restart camera
+pm2 restart "Duc Tai Dendo 1_main"
+```
 
-# Restart recorder
-docker compose restart recorder
+### **Out of disk space?**
+
+```bash
+# Check storage
+df -h
+
+# Clean old recordings (manual)
+find data/recordings/ -name "*.mp4" -mtime +2 -delete
+
+# Or adjust retention in code
 ```
 
 ---
 
 ## 📖 Next Steps
 
-1. **Read the docs:**
-   - [DOCKER_SETUP.md](./DOCKER_SETUP.md) - Complete Docker guide
-   - [docs/FINAL_SOLUTION.md](./docs/FINAL_SOLUTION.md) - Full system overview
-   - [docs/SERVER_ASSESSMENT.md](./docs/SERVER_ASSESSMENT.md) - Server specs
+### **1. Read Documentation:**
+- 📄 [docs/README.md](./docs/README.md) - Main documentation hub
+- 📄 [docs/PM2_OPERATIONS.md](./docs/PM2_OPERATIONS.md) - PM2 operations guide
+- 📄 [PROGRESS.md](./PROGRESS.md) - Current progress
 
-2. **Add real cameras:**
-   - Configure RTSP URLs
-   - Test recording
-   - Enable live streaming
+### **2. View Progress & Plans:**
+- 📄 [docs/reports/PROGRESS_ANALYSIS.md](./docs/reports/PROGRESS_ANALYSIS.md) - Detailed analysis
+- 📄 [docs/plan/OPTIMIZATION_IMPLEMENTATION_PLAN.md](./docs/plan/OPTIMIZATION_IMPLEMENTATION_PLAN.md) - Next steps
 
-3. **Explore features:**
-   - Multi-camera grid view
-   - Recording playback
-   - Event search
-   - System monitoring
+### **3. Explore Features:**
+- Login to web interface
+- View live streams
+- Check recordings
+- Monitor system health
 
-4. **Customize settings:**
-   - Edit `.env` file
-   - Adjust transcode quality
-   - Configure storage tiers
-
-5. **Development:**
-   - See [DOCKER_SETUP.md](./DOCKER_SETUP.md) for dev workflow
-   - API documentation at http://localhost:3000/api/docs
+### **4. Optimization (Next Priority):**
+- Read optimization plan
+- Implement Phase 1 (6 hours)
+- Test with 5 cameras
+- Performance benchmarking
 
 ---
 
 ## 🎯 Testing Checklist
 
-- [ ] All services started successfully
-- [ ] Can access frontend at http://localhost:8080
+- [ ] All PM2 processes "online"
+- [ ] Can access frontend at http://localhost:5173
 - [ ] Can login with admin/admin123
 - [ ] API health check returns OK
-- [ ] Can add a camera
-- [ ] Recording starts successfully
-- [ ] Live stream displays in UI
-- [ ] QuickSync verified (optional but recommended)
+- [ ] Cameras are recording
+- [ ] Live streams working
+- [ ] Recordings visible in data/recordings/
 
 ---
 
 ## 💡 Tips
 
-- **Use `make help`** to see all available commands
-- **Use `make logs`** to debug issues
-- **Use `make status`** to check services
-- **Use `make quick-test`** for testing without real cameras
-- **Check [DOCKER_SETUP.md](./DOCKER_SETUP.md)** for advanced usage
+- **Use `pm2 monit`** to monitor CPU/RAM in real-time
+- **Use `pm2 logs`** to debug issues
+- **Check `data/recordings/`** to verify recording is working
+- **Read [docs/PM2_OPERATIONS.md](./docs/PM2_OPERATIONS.md)** for advanced PM2 usage
 
 ---
 
@@ -275,16 +299,15 @@ docker compose restart recorder
 
 ```bash
 # View system info
-make info
+pm2 list
+df -h
+free -h
 
-# Show service endpoints
-make ports
+# Export logs for debugging
+pm2 logs > vms-logs.txt
 
-# Check versions
-make version
-
-# View resource usage
-make stats
+# Check configuration
+cat ecosystem.config.js
 ```
 
 ---
@@ -292,10 +315,10 @@ make stats
 ## 🎉 You're All Set!
 
 Your VMS is now running. Time to:
-- Add your cameras
-- Start recording
-- Explore the UI
-- Read the full documentation
+- Monitor your cameras
+- Check recordings
+- Explore the web interface
+- Read the optimization plan
 
 **Happy monitoring! 📹**
 
@@ -303,8 +326,8 @@ Your VMS is now running. Time to:
 
 **For detailed documentation, see:**
 - [README.md](./README.md) - Project overview
-- [DOCKER_SETUP.md](./DOCKER_SETUP.md) - Complete setup guide
-- [docs/FINAL_SOLUTION.md](./docs/FINAL_SOLUTION.md) - Full system design
-- [docs/reports/](./docs/reports/) - Assessment reports
+- [docs/README.md](./docs/README.md) - Complete documentation
+- [PROGRESS.md](./PROGRESS.md) - Current progress
+- [docs/plan/](./docs/plan/) - Implementation plans
 
-**Last Updated**: October 19, 2025
+**Last Updated**: October 20, 2025
