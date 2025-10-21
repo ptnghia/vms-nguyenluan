@@ -27,8 +27,12 @@ export interface User {
   id: string;
   username: string;
   email: string;
+  full_name: string | null;
   role: 'admin' | 'operator' | 'viewer';
+  active: boolean;
+  last_login: string | null;
   created_at: string;
+  updated_at: string;
 }
 
 export interface AuthTokens {

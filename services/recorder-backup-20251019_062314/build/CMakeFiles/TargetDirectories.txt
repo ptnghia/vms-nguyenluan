@@ -1,7 +1,0 @@
-/home/camera/app/vms/services/recorder/build/CMakeFiles/vms-recorder.dir
-/home/camera/app/vms/services/recorder/build/CMakeFiles/edit_cache.dir
-/home/camera/app/vms/services/recorder/build/CMakeFiles/rebuild_cache.dir
-/home/camera/app/vms/services/recorder/build/CMakeFiles/list_install_components.dir
-/home/camera/app/vms/services/recorder/build/CMakeFiles/install.dir
-/home/camera/app/vms/services/recorder/build/CMakeFiles/install/local.dir
-/home/camera/app/vms/services/recorder/build/CMakeFiles/install/strip.dir

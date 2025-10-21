@@ -14,27 +14,16 @@ writeTimeout: 10s
 writeQueueSize: 1024  # Higher for many concurrent streams
 udpMaxPayloadSize: 1472
 
-# Authentication - Internal for now
+# Authentication - Disabled for internal network
 authMethod: internal
 authInternalUsers:
-  - user: vms_recorder
-    pass: vms_recorder_secret_2025
-    ips: [127.0.0.1]  # Only localhost can publish
+  - user: any
+    ips: []
     permissions:
       - action: publish
       - action: read
-  
-  - user: vms_web
-    pass: vms_web_secret_2025
-    permissions:
-      - action: read  # Web clients can only read
-  
-  - user: any  # Anonymous access for demo
-    pass:
-    ips: []
-    permissions:
-      - action: read
       - action: playback
+      - action: api
 
 ###############################################
 # RTSP Server
@@ -91,6 +80,8 @@ metricsAddress: :9998
 # API for management
 api: yes
 apiAddress: :9997
+# Disable API authentication for internal use
+# apiAuthMethods: []
 
 ###############################################
 # Path defaults for camera streams

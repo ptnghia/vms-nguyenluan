@@ -5,16 +5,28 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { CircularProgress, Box } from '@mui/material';
+import MainLayout from './components/layout/MainLayout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
-import CameraLiveView from './pages/CameraLiveView';
+import LiveViewPage from './pages/LiveViewPage';
+import CameraViewPage from './pages/CameraViewPage';
+import RecordingsPage from './pages/RecordingsPage';
+import RecordingPlaybackPage from './pages/RecordingPlaybackPage';
+import CameraManagementPage from './pages/CameraManagementPage';
+import UserManagementPage from './pages/UserManagementPage';
+import SettingsPage from './pages/SettingsPage';
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (!isAuthenticated) {
@@ -34,18 +46,19 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <DashboardPage />
+                <MainLayout />
               </ProtectedRoute>
             }
-          />
-          <Route
-            path="/camera/:cameraId"
-            element={
-              <ProtectedRoute>
-                <CameraLiveView />
-              </ProtectedRoute>
-            }
-          />
+          >
+            <Route index element={<DashboardPage />} />
+            <Route path="live" element={<LiveViewPage />} />
+            <Route path="camera/:cameraId" element={<CameraViewPage />} />
+            <Route path="recordings" element={<RecordingsPage />} />
+            <Route path="recordings/:recordingId" element={<RecordingPlaybackPage />} />
+            <Route path="cameras" element={<CameraManagementPage />} />
+            <Route path="users" element={<UserManagementPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

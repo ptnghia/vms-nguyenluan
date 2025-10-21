@@ -4,6 +4,10 @@ import dotenv from 'dotenv';
 import cameraRoutes from './routes/cameras';
 import authRoutes from './routes/auth';
 import streamRoutes from './routes/streams';
+import recordingRoutes from './routes/recordings';
+import userRoutes from './routes/users';
+import activityRoutes from './routes/activity';
+import systemRoutes from './routes/system';
 
 dotenv.config();
 
@@ -44,6 +48,10 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/cameras', cameraRoutes);
 app.use('/api/streams', streamRoutes);
+app.use('/api/recordings', recordingRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/activity', activityRoutes);
+app.use('/api/system', systemRoutes);
 
 app.get('/api', (req: Request, res: Response) => {
   res.json({
@@ -64,7 +72,32 @@ app.get('/api', (req: Request, res: Response) => {
       'GET /api/streams/camera/:id - Get camera stream URLs',
       'GET /api/streams/status/:id - Get stream status',
       'GET /api/streams/health - MediaMTX health',
-      '/api/recordings'
+      'GET /api/recordings - List recordings',
+      'GET /api/recordings/search - Search recordings',
+      'GET /api/recordings/stats - Recording statistics',
+      'GET /api/recordings/:id - Get recording details',
+      'GET /api/recordings/:id/download - Download recording',
+      'DELETE /api/recordings/:id - Delete recording (admin)',
+      'POST /api/recordings/sync - Sync file system (admin)',
+      'GET /api/users - List users (admin)',
+      'GET /api/users/stats - User statistics (admin)',
+      'GET /api/users/:id - Get user details',
+      'POST /api/users - Create user (admin)',
+      'PUT /api/users/:id - Update user',
+      'PUT /api/users/:id/role - Change user role (admin)',
+      'DELETE /api/users/:id - Delete user (admin)',
+      'GET /api/activity - List activity logs (admin)',
+      'GET /api/activity/stats - Activity statistics (admin)',
+      'GET /api/activity/me - My recent activities',
+      'GET /api/activity/:id - Get activity log (admin)',
+      'DELETE /api/activity/cleanup - Cleanup old logs (admin)',
+      'GET /api/system/status - System status (operator)',
+      'GET /api/system/stats - System statistics (operator)',
+      'GET /api/system/cpu - CPU details (operator)',
+      'GET /api/system/gpu - GPU details (operator)',
+      'GET /api/system/disk - Disk usage (operator)',
+      'GET /api/system/processes - Process list (operator)',
+      'GET /api/system/logs - System logs (admin)'
     ]
   });
 });

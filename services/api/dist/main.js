@@ -9,6 +9,10 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const cameras_1 = __importDefault(require("./routes/cameras"));
 const auth_1 = __importDefault(require("./routes/auth"));
 const streams_1 = __importDefault(require("./routes/streams"));
+const recordings_1 = __importDefault(require("./routes/recordings"));
+const users_1 = __importDefault(require("./routes/users"));
+const activity_1 = __importDefault(require("./routes/activity"));
+const system_1 = __importDefault(require("./routes/system"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
@@ -43,6 +47,10 @@ app.get('/', (req, res) => {
 app.use('/api/auth', auth_1.default);
 app.use('/api/cameras', cameras_1.default);
 app.use('/api/streams', streams_1.default);
+app.use('/api/recordings', recordings_1.default);
+app.use('/api/users', users_1.default);
+app.use('/api/activity', activity_1.default);
+app.use('/api/system', system_1.default);
 app.get('/api', (req, res) => {
     res.json({
         message: 'VMS API v1.0.0',
@@ -62,7 +70,32 @@ app.get('/api', (req, res) => {
             'GET /api/streams/camera/:id - Get camera stream URLs',
             'GET /api/streams/status/:id - Get stream status',
             'GET /api/streams/health - MediaMTX health',
-            '/api/recordings'
+            'GET /api/recordings - List recordings',
+            'GET /api/recordings/search - Search recordings',
+            'GET /api/recordings/stats - Recording statistics',
+            'GET /api/recordings/:id - Get recording details',
+            'GET /api/recordings/:id/download - Download recording',
+            'DELETE /api/recordings/:id - Delete recording (admin)',
+            'POST /api/recordings/sync - Sync file system (admin)',
+            'GET /api/users - List users (admin)',
+            'GET /api/users/stats - User statistics (admin)',
+            'GET /api/users/:id - Get user details',
+            'POST /api/users - Create user (admin)',
+            'PUT /api/users/:id - Update user',
+            'PUT /api/users/:id/role - Change user role (admin)',
+            'DELETE /api/users/:id - Delete user (admin)',
+            'GET /api/activity - List activity logs (admin)',
+            'GET /api/activity/stats - Activity statistics (admin)',
+            'GET /api/activity/me - My recent activities',
+            'GET /api/activity/:id - Get activity log (admin)',
+            'DELETE /api/activity/cleanup - Cleanup old logs (admin)',
+            'GET /api/system/status - System status (operator)',
+            'GET /api/system/stats - System statistics (operator)',
+            'GET /api/system/cpu - CPU details (operator)',
+            'GET /api/system/gpu - GPU details (operator)',
+            'GET /api/system/disk - Disk usage (operator)',
+            'GET /api/system/processes - Process list (operator)',
+            'GET /api/system/logs - System logs (admin)'
         ]
     });
 });

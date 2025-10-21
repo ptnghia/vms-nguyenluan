@@ -23,7 +23,7 @@ export interface AuthTokens {
 }
 
 export interface TokenPayload {
-  userId: number;
+  userId: string;
   username: string;
   role: string;
 }
@@ -182,7 +182,7 @@ export class AuthService {
   /**
    * Get user by ID
    */
-  async getUserById(userId: number): Promise<User | null> {
+  async getUserById(userId: string): Promise<User | null> {
     const result = await this.pool.query(
       'SELECT id, username, email, role, created_at FROM users WHERE id = $1',
       [userId]
@@ -195,7 +195,7 @@ export class AuthService {
    * Change user password
    */
   async changePassword(
-    userId: number,
+    userId: string,
     oldPassword: string,
     newPassword: string
   ): Promise<void> {

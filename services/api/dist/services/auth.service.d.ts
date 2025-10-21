@@ -16,7 +16,7 @@ export interface AuthTokens {
     expiresIn: string;
 }
 export interface TokenPayload {
-    userId: number;
+    userId: string;
     username: string;
     role: string;
 }
@@ -46,10 +46,10 @@ export declare class AuthService {
     /**
      * Get user by ID
      */
-    getUserById(userId: number): Promise<User | null>;
+    getUserById(userId: string): Promise<User | null>;
     /**
      * Change user password
      */
-    changePassword(userId: number, oldPassword: string, newPassword: string): Promise<void>;
+    changePassword(userId: string, oldPassword: string, newPassword: string): Promise<void>;
 }
 //# sourceMappingURL=auth.service.d.ts.map

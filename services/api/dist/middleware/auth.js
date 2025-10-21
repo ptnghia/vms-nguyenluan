@@ -7,7 +7,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.optionalAuth = exports.authorize = exports.authenticate = void 0;
+exports.requireOperator = exports.requireAdmin = exports.optionalAuth = exports.authorize = exports.authenticate = void 0;
 const auth_service_1 = require("../services/auth.service");
 const database_1 = __importDefault(require("../config/database"));
 const authService = new auth_service_1.AuthService(database_1.default);
@@ -81,4 +81,19 @@ const optionalAuth = async (req, res, next) => {
     next();
 };
 exports.optionalAuth = optionalAuth;
+/**
+ * Middleware to require admin role
+ * Combines authenticate + authorize('admin')
+ */
+exports.requireAdmin = [
+    exports.authenticate,
+    (0, exports.authorize)('admin')
+];
+/**
+ * Middleware to require operator or admin role
+ */
+exports.requireOperator = [
+    exports.authenticate,
+    (0, exports.authorize)('admin', 'operator')
+];
 //# sourceMappingURL=auth.js.map

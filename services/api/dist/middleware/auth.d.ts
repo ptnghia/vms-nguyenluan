@@ -23,4 +23,13 @@ export declare const authorize: (...allowedRoles: string[]) => (req: Request, re
  * Optional authentication - adds user if token present but doesn't require it
  */
 export declare const optionalAuth: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+/**
+ * Middleware to require admin role
+ * Combines authenticate + authorize('admin')
+ */
+export declare const requireAdmin: ((req: Request, res: Response, next: NextFunction) => void)[];
+/**
+ * Middleware to require operator or admin role
+ */
+export declare const requireOperator: ((req: Request, res: Response, next: NextFunction) => void)[];
 //# sourceMappingURL=auth.d.ts.map

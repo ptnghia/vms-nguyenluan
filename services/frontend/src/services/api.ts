@@ -147,14 +147,144 @@ class ApiClient {
   // ============ Recordings ============
 
   async getRecordings(params?: {
-    camera_id?: string;
-    start_time?: string;
-    end_time?: string;
-  }): Promise<Recording[]> {
+    cameraId?: string;
+    startDate?: string;
+    endDate?: string;
+    storageTier?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{ recordings: Recording[]; pagination: any }> {
     const response = await this.client.get<ApiResponse<Recording[]>>('/recordings', {
       params,
     });
-    return response.data.data || [];
+    return {
+      recordings: response.data.data || [],
+      pagination: (response.data as any).pagination
+    };
+  }
+
+  async searchRecordings(params?: {
+    q?: string;
+    cameraId?: string;
+    startDate?: string;
+    endDate?: string;
+    minDuration?: number;
+    maxDuration?: number;
+    resolution?: string;
+    codec?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{ recordings: Recording[]; pagination: any }> {
+    const response = await this.client.get<ApiResponse<Recording[]>>('/recordings/search', {
+      params,
+    });
+    return {
+      recordings: response.data.data || [],
+      pagination: (response.data as any).pagination
+    };
+  }
+
+  async getRecording(id: string): Promise<Recording> {
+    const response = await this.client.get<ApiResponse<Recording>>(`/recordings/${id}`);
+    return response.data.data!;
+  }
+
+  async downloadRecording(id: string): Promise<Blob> {
+    const response = await this.client.get(`/recordings/${id}/download`, {
+      responseType: 'blob'
+    });
+    return response.data;
+  }
+
+  async deleteRecording(id: string): Promise<void> {
+    await this.client.delete(`/recordings/${id}`);
+  }
+
+  async syncRecordings(): Promise<any> {
+    const response = await this.client.post<ApiResponse<any>>('/recordings/sync');
+    return response.data.data;
+  }
+
+  async getRecordingStats(): Promise<any> {
+    const response = await this.client.get<ApiResponse<any>>('/recordings/stats');
+    return response.data.data;
+  }
+
+  // ============ System Monitoring ============
+
+  async getSystemStatus(): Promise<any> {
+    const response = await this.client.get<ApiResponse<any>>('/system/status');
+    return response.data.data;
+  }
+
+  async getSystemStats(): Promise<any> {
+    const response = await this.client.get<ApiResponse<any>>('/system/stats');
+    return response.data.data;
+  }
+
+  async getCPUStats(): Promise<any> {
+    const response = await this.client.get<ApiResponse<any>>('/system/cpu');
+    return response.data.data;
+  }
+
+  async getGPUStats(): Promise<any> {
+    const response = await this.client.get<ApiResponse<any>>('/system/gpu');
+    return response.data.data;
+  }
+
+  async getDiskStats(): Promise<any> {
+    const response = await this.client.get<ApiResponse<any>>('/system/disk');
+    return response.data.data;
+  }
+
+  // ============ Users ============
+
+  async getUsers(params?: {
+    role?: string;
+    active?: boolean;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{ users: User[]; total: number }> {
+    const response = await this.client.get<ApiResponse<{ users: User[]; total: number }>>('/users', { params });
+    return response.data.data!;
+  }
+
+  async getUser(id: string): Promise<User> {
+    const response = await this.client.get<ApiResponse<User>>(`/users/${id}`);
+    return response.data.data!;
+  }
+
+  async createUser(user: {
+    username: string;
+    email: string;
+    password: string;
+    full_name?: string;
+    role?: string;
+  }): Promise<User> {
+    const response = await this.client.post<ApiResponse<User>>('/users', user);
+    return response.data.data!;
+  }
+
+  async updateUser(id: string, updates: {
+    email?: string;
+    full_name?: string;
+    role?: string;
+    active?: boolean;
+    password?: string;
+  }): Promise<User> {
+    const response = await this.client.put<ApiResponse<User>>(`/users/${id}`, updates);
+    return response.data.data!;
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await this.client.delete(`/users/${id}`);
+  }
+
+  async changeUserRole(id: string, role: string): Promise<User> {
+    const response = await this.client.put<ApiResponse<User>>(`/users/${id}/role`, { role });
+    return response.data.data!;
   }
 
   // ============ Health Check ============

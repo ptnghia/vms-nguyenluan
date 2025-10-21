@@ -1,188 +1,308 @@
 /**
  * Dashboard Page
- * Main camera grid view
+ * Main dashboard with system overview
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Container,
   Box,
-  Paper,
   Typography,
-  AppBar,
-  Toolbar,
-  Button,
-  IconButton,
-  Badge,
+  Grid,
+  Card,
+  CardContent,
   CircularProgress,
+  Alert,
+  Chip,
 } from '@mui/material';
 import {
-  Logout,
-  Videocam,
-  FiberManualRecord,
+  Videocam as VideocamIcon,
+  Storage as StorageIcon,
+  Memory as MemoryIcon,
+  Speed as SpeedIcon,
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../services/api';
-import type { Camera } from '../types';
+
+interface SystemStats {
+  cameras: {
+    total: number;
+    active: number;
+  };
+  recordings: {
+    total: number;
+  };
+  cpu: {
+    usage: number;
+    cores: number;
+  };
+  memory: {
+    usagePercent: number;
+    totalFormatted: string;
+    usedFormatted: string;
+  };
+  disk: {
+    usagePercent: number;
+    recordingsSizeFormatted: string;
+  };
+  gpu?: {
+    available: boolean;
+    name?: string;
+    utilization?: number;
+    encoderUtilization?: number;
+  };
+}
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
-  const [cameras, setCameras] = useState<Camera[]>([]);
+  const [stats, setStats] = useState<SystemStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    loadCameras();
-    // Refresh every 30 seconds
-    const interval = setInterval(loadCameras, 30000);
+    loadStats();
+    // Refresh stats every 5 seconds
+    const interval = setInterval(loadStats, 5000);
     return () => clearInterval(interval);
   }, []);
 
-  const loadCameras = async () => {
+  const loadStats = async () => {
     try {
-      const data = await apiClient.getCameras();
-      setCameras(data);
+      // Fetch system stats and status in parallel
+      const [systemStats, systemStatus] = await Promise.all([
+        apiClient.getSystemStats(),
+        apiClient.getSystemStatus()
+      ]);
+
+      setStats({
+        cameras: systemStatus.cameras,
+        recordings: systemStatus.recordings,
+        cpu: systemStats.cpu,
+        memory: systemStats.memory,
+        disk: systemStats.disk,
+        gpu: systemStats.gpu,
+      });
       setError('');
     } catch (err) {
-      setError('Failed to load cameras');
-      console.error(err);
+      console.error('Failed to load stats:', err);
+      setError('Failed to load system statistics');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-  const handleCameraClick = (cameraId: string) => {
-    navigate(`/camera/${cameraId}`);
-  };
-
-  const onlineCameras = cameras.filter((c) => c.status === 'online').length;
+  if (error) {
+    return (
+      <Alert severity="error" sx={{ mb: 2 }}>
+        {error}
+      </Alert>
+    );
+  }
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      {/* App Bar */}
-      <AppBar position="static">
-        <Toolbar>
-          <Videocam sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            VMS Dashboard
-          </Typography>
-          <Typography variant="body2" sx={{ mr: 2 }}>
-            {user?.username} ({user?.role})
-          </Typography>
-          <Badge badgeContent={onlineCameras} color="success" sx={{ mr: 2 }}>
-            <Typography variant="body2">Cameras Online</Typography>
-          </Badge>
-          <IconButton color="inherit" onClick={handleLogout}>
-            <Logout />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
+    <Box>
+      <Typography variant="h4" component="h1" gutterBottom>
+        System Overview
+      </Typography>
 
-      {/* Main Content */}
-      <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-        {isLoading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
-            <CircularProgress />
-          </Box>
-        ) : error ? (
-          <Typography color="error" align="center">
-            {error}
-          </Typography>
-        ) : (
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: {
-                xs: '1fr',
-                sm: 'repeat(2, 1fr)',
-                md: 'repeat(3, 1fr)',
-              },
-              gap: 3,
-            }}
-          >
-            {cameras.map((camera) => (
-              <Paper
-                key={camera.id}
-                  elevation={3}
-                  sx={{
-                    p: 2,
-                    cursor: 'pointer',
-                    '&:hover': {
-                      boxShadow: 6,
-                    },
-                  }}
-                  onClick={() => handleCameraClick(camera.id)}
-                >
-                  {/* Camera Preview Placeholder */}
-                  <Box
-                    sx={{
-                      width: '100%',
-                      height: 200,
-                      bgcolor: 'grey.900',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: 1,
-                      mb: 2,
-                    }}
-                  >
-                    <Videocam sx={{ fontSize: 64, color: 'grey.600' }} />
-                  </Box>
-
-                  {/* Camera Info */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <FiberManualRecord
-                      sx={{
-                        fontSize: 12,
-                        color: camera.status === 'online' ? 'success.main' : 'error.main',
-                        mr: 1,
-                      }}
-                    />
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                      {camera.name}
-                    </Typography>
-                  </Box>
-
+      <Grid container spacing={3}>
+        {/* Cameras Card */}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <VideocamIcon sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
+                <Box>
+                  <Typography variant="h4">{stats?.cameras.total || 0}</Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {camera.location || 'No location'}
+                    Total Cameras
                   </Typography>
+                </Box>
+              </Box>
+              <Chip
+                label={`${stats?.cameras.active || 0} Active`}
+                color="success"
+                size="small"
+              />
+            </CardContent>
+          </Card>
+        </Grid>
 
-                  <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-                    Status: {camera.status}
+        {/* Recordings Card */}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <StorageIcon sx={{ fontSize: 40, color: 'info.main', mr: 2 }} />
+                <Box>
+                  <Typography variant="h4">{stats?.recordings.total || 0}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Recordings
                   </Typography>
+                </Box>
+              </Box>
+              <Typography variant="body2" color="text.secondary">
+                {stats?.disk.recordingsSizeFormatted || '0 B'}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
 
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                    sx={{ mt: 2 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/camera/${camera.id}`);
-                    }}
-                  >
-                  View Live
-                </Button>
-              </Paper>
-            ))}
-          </Box>
-        )}        {!isLoading && cameras.length === 0 && (
-          <Paper sx={{ p: 4, textAlign: 'center' }}>
-            <Typography variant="h6" color="text.secondary">
-              No cameras configured
-            </Typography>
-          </Paper>
+        {/* CPU Card */}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <SpeedIcon sx={{ fontSize: 40, color: 'warning.main', mr: 2 }} />
+                <Box>
+                  <Typography variant="h4">{stats?.cpu.usage.toFixed(1)}%</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    CPU Usage
+                  </Typography>
+                </Box>
+              </Box>
+              <Typography variant="body2" color="text.secondary">
+                {stats?.cpu.cores} cores
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Memory Card */}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <MemoryIcon sx={{ fontSize: 40, color: 'error.main', mr: 2 }} />
+                <Box>
+                  <Typography variant="h4">{stats?.memory.usagePercent.toFixed(1)}%</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Memory Usage
+                  </Typography>
+                </Box>
+              </Box>
+              <Typography variant="body2" color="text.secondary">
+                {stats?.memory.usedFormatted} / {stats?.memory.totalFormatted}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* GPU Card (if available) */}
+        {stats?.gpu?.available && (
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  GPU: {stats.gpu.name}
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Utilization
+                    </Typography>
+                    <Typography variant="h5">{stats.gpu.utilization}%</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Encoder
+                    </Typography>
+                    <Typography variant="h5">{stats.gpu.encoderUtilization}%</Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
         )}
-      </Container>
+
+        {/* Disk Usage Card */}
+        <Grid size={{ xs: 12, sm: 6, md: stats?.gpu?.available ? 8 : 12 }}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Disk Usage
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Typography variant="h4">{stats?.disk.usagePercent.toFixed(1)}%</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Recordings: {stats?.disk.recordingsSizeFormatted}
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Quick Actions */}
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          Quick Actions
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Card
+              sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
+              onClick={() => navigate('/live')}
+            >
+              <CardContent>
+                <Typography variant="h6">View Live Streams</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Monitor all cameras in real-time
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Card
+              sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
+              onClick={() => navigate('/recordings')}
+            >
+              <CardContent>
+                <Typography variant="h6">Browse Recordings</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Search and playback recordings
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Card
+              sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
+              onClick={() => navigate('/cameras')}
+            >
+              <CardContent>
+                <Typography variant="h6">Manage Cameras</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Add, edit, or remove cameras
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Card
+              sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
+              onClick={() => navigate('/settings')}
+            >
+              <CardContent>
+                <Typography variant="h6">Settings</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Configure system settings
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </Box>
     </Box>
   );
 };
 
 export default DashboardPage;
+

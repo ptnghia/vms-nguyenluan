@@ -90,7 +90,7 @@ export const optionalAuth = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
       const payload = authService.verifyToken(token);
@@ -99,6 +99,23 @@ export const optionalAuth = async (
   } catch (error) {
     // Ignore errors for optional auth
   }
-  
+
   next();
 };
+
+/**
+ * Middleware to require admin role
+ * Combines authenticate + authorize('admin')
+ */
+export const requireAdmin = [
+  authenticate,
+  authorize('admin')
+];
+
+/**
+ * Middleware to require operator or admin role
+ */
+export const requireOperator = [
+  authenticate,
+  authorize('admin', 'operator')
+];
